@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
-import { ANALYSIS_PROMPT, analyzeImage } from "../lib/gemini";
+import { analyzeImage, PROMPTS } from "../lib/gemini";
 
 type Analysis = {
   objects: string[];
@@ -11,7 +11,10 @@ type Analysis = {
 };
 
 export default function ResultScreen() {
-  const { base64Image } = useLocalSearchParams<{ base64Image: string }>();
+  const { base64Image, promptKey } = useLocalSearchParams<{
+    base64Image: string;
+    promptKey: string;
+  }>();
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -24,7 +27,9 @@ export default function ResultScreen() {
     setLoading(true);
     setError(null);
     try {
-      const result = await analyzeImage(base64Image, ANALYSIS_PROMPT);
+      const prompt =
+        PROMPTS[promptKey as keyof typeof PROMPTS] ?? PROMPTS.academic;
+      const result = await analyzeImage(base64Image, prompt);
       console.log("FULL GEMINI RESPONSE:", JSON.stringify(result, null, 2));
 
       const textPart = result?.candidates?.[0]?.content?.parts?.[0]?.text;
