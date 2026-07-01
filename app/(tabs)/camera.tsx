@@ -1,24 +1,33 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { useRouter } from "expo-router"; // add this import at the top
+import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+    Platform,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function CameraScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
   const [photo, setPhoto] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
 
-  // Still loading permission status
   if (!permission) {
     return <View style={styles.container} />;
   }
 
-  // Permission denied — ask for it
   if (!permission.granted) {
     return (
       <View style={styles.permissionContainer}>
         <Text style={styles.permissionText}>
-          We need your permission to use the camera
+          {Platform.OS === "ios"
+            ? 'VisionAI needs camera access. Tap below, then choose "Allow" in the dialog.'
+            : "VisionAI needs camera access. Tap below to grant the permission."}
         </Text>
         <TouchableOpacity
           style={styles.permissionButton}
@@ -30,10 +39,6 @@ export default function CameraScreen() {
     );
   }
 
-  // ...inside the component, add:
-  const router = useRouter();
-
-  // ...replace takePicture with:
   async function takePicture() {
     if (!cameraRef.current) return;
     const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
@@ -45,7 +50,10 @@ export default function CameraScreen() {
   return (
     <View style={styles.container}>
       <CameraView ref={cameraRef} style={styles.camera} facing="back" />
-      <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
+      <TouchableOpacity
+        style={[styles.captureButton, { bottom: insets.bottom + 24 }]}
+        onPress={takePicture}
+      >
         <Text style={styles.captureButtonText}>Capture</Text>
       </TouchableOpacity>
     </View>
@@ -57,7 +65,6 @@ const styles = StyleSheet.create({
   camera: { flex: 1 },
   captureButton: {
     position: "absolute",
-    bottom: 40,
     alignSelf: "center",
     backgroundColor: "#2E5BBA",
     paddingVertical: 14,

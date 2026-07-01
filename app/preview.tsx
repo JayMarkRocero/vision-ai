@@ -1,10 +1,19 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View,
+} from "react-native";
 import { imageToBase64 } from "../lib/gemini";
 
 export default function PreviewScreen() {
   const { photoUri } = useLocalSearchParams<{ photoUri: string }>();
   const router = useRouter();
+  const { width, height } = useWindowDimensions();
+  const isTablet = Math.min(width, height) >= 468; // use the SHORTER side
 
   async function goAnalyze(promptKey: string) {
     const base64Image = await imageToBase64(photoUri);
@@ -13,7 +22,16 @@ export default function PreviewScreen() {
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: photoUri }} style={styles.preview} />
+      <View style={styles.imageWrapper}>
+        <Image
+          source={{ uri: photoUri }}
+          style={[
+            styles.preview,
+            isTablet && { maxWidth: 400, alignSelf: "center" },
+          ]}
+          resizeMode="contain"
+        />
+      </View>
 
       <View style={styles.personaRow}>
         <TouchableOpacity
@@ -50,7 +68,8 @@ export default function PreviewScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
-  preview: { flex: 1, resizeMode: "contain" },
+  imageWrapper: { flex: 1, width: "100%" },
+  preview: { flex: 1, width: "100%", height: "100%" },
   personaRow: {
     flexDirection: "row",
     justifyContent: "space-around",

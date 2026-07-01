@@ -1,6 +1,12 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import {
+    ActivityIndicator,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
 import { analyzeImage, PROMPTS } from "../lib/gemini";
 
 type Analysis = {
@@ -63,7 +69,10 @@ export default function ResultScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <Text style={styles.sectionTitle}>Objects</Text>
       {analysis!.objects.map((obj, i) => (
         <Text key={i} style={styles.listItem}>
@@ -79,12 +88,13 @@ export default function ResultScreen() {
 
       <Text style={styles.sectionTitle}>Recommendations</Text>
       <Text style={styles.bodyText}>{analysis!.recommendations}</Text>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, paddingTop: 60 },
+  container: { flex: 1 },
+  scrollContent: { padding: 20, paddingTop: 60, paddingBottom: 60 },
   centered: { flex: 1, justifyContent: "center", alignItems: "center" },
   loadingText: { marginTop: 12, color: "#5A6472" },
   errorText: { color: "#B3261E", textAlign: "center", fontSize: 16 },
