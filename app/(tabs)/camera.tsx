@@ -1,4 +1,5 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
+import { useRouter } from "expo-router"; // add this import at the top
 import { useRef, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -29,13 +30,15 @@ export default function CameraScreen() {
     );
   }
 
-  // Permission granted — take the picture
+  // ...inside the component, add:
+  const router = useRouter();
+
+  // ...replace takePicture with:
   async function takePicture() {
     if (!cameraRef.current) return;
     const result = await cameraRef.current.takePictureAsync({ quality: 0.7 });
     if (result) {
-      setPhoto(result.uri);
-      console.log("Captured photo:", result.uri); // temporary, for testing
+      router.push({ pathname: "/preview", params: { photoUri: result.uri } });
     }
   }
 
